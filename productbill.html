@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+   
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <title>jQuery Invoice Plugin Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+
+        .delete-btn {
+            position: relative;
+        }
+
+        .delete {
+            display: block;
+            color: #000;
+            text-decoration: none;
+            position: absolute;
+            background: #EEEEEE;
+            font-weight: bold;
+            padding: 0px 3px;
+            border: 1px solid;
+            top: -6px;
+            left: -6px;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+     
+        <!------ Include the above in your HEAD tag ---------->
+        
+        <div class="container">
+            <div class="row" style="margin-bottom:0px;">
+                    <div class="input-field col s6">
+                            <input id="last_name" type="text" class="validate">
+                            <label for="last_name">Last Name</label>
+                          </div>
+                          <div class="input-field col s6">
+                                <input id="last_name" type="text" class="validate">
+                                <label for="last_name">Bill No</label>
+                              </div>
+            </div>
+            <div class="row">
+                    <div class="input-field col s6">
+                            <input type="text" class="datepicker">
+                            <label for="last_name">Date</label>
+                    </div>
+                    <div class="input-field col s6">
+                            <input type="text" class="timepicker">
+                            <label for="last_name">time</label>
+
+                    </div>
+                    
+                <!-- <div class="input-field col s12">
+                        
+                  <label for="disabled">Date</label>
+                </div> -->
+              </div>
+          <div class="row clearfix">
+            <div class="col-md-12">
+              <table class="table table-bordered table-hover" id="tab_logic">
+                <thead>
+                  <tr>
+                    <th class="text-center"> # </th>
+                    <th class="text-center"> Product </th>
+                    <th class="text-center"> Qty </th>
+                    <th class="text-center"> Price </th>
+                    <th class="text-center"> Total </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id='addr0'>
+                    <td>1</td>
+                    <td><input type="text" name='product[]'  placeholder='Enter Product Name' class="form-control"/></td>
+                    <td><input type="number" name='qty[]' placeholder='Enter Qty' class="form-control qty" step="0" min="0"/></td>
+                    <td><input type="number" name='price[]' placeholder='Enter Unit Price' class="form-control price" step="0.00" min="0"/></td>
+                    <td><input type="number" name='total[]' placeholder='0.00' class="form-control total" readonly/></td>
+                  </tr>
+                  <tr id='addr1'></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row clearfix">
+            <div class="col s-12">
+              <button id="add_row" class="btn btn-default pull-left">Add Row</button>
+              <button id='delete_row' class="pull-right btn btn-default">Delete Row</button>
+            </div>
+          </div>
+          <div class="row clearfix" style="margin-top:20px">
+                <div class="col s6 offset-s6">
+              <table class="table table-bordered table-hover" id="tab_logic_total">
+                <tbody>
+                  <tr>
+                    <th class="text-center">Sub Total</th>
+                    <td class="text-center"><input type="number" name='sub_total' placeholder='0.00' class="form-control" id="sub_total" readonly/></td>
+                  </tr>
+                  <tr>
+                    <th class="text-center">Tax % </th>
+                    <td class="text-center"><div class="input-group mb-2 mb-sm-0">
+                        <input type="number" class="form-control" id="tax" placeholder="0">
+                    
+                      </div></td>
+                  </tr>
+                  <tr>
+                    <th class="text-center">Tax Amount</th>
+                    <td class="text-center"><input type="number" name='tax_amount' id="tax_amount" placeholder='0.00' class="form-control" readonly/></td>
+                  </tr>
+                  <tr>
+                    <th class="text-center">Grand Total</th>
+                    <td class="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' class="form-control" readonly/></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                    <i class="material-icons right">send</i>
+                  </button>
+                        
+            </div>
+            </div>
+          </div>
+        </div>
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+            $(document).ready(function(){
+    var i=1;
+    $("#add_row").click(function(){b=i-1;
+      	$('#addr'+i).html($('#addr'+b).html()).find('td:first-child').html(i+1);
+      	$('#tab_logic').append('<tr id="addr'+(i+1)+'"></tr>');
+      	i++; 
+  	});
+    $("#delete_row").click(function(){
+    	if(i>1){
+		$("#addr"+(i-1)).html('');
+		i--;
+		}
+		calc();
+	});
+	
+	$('#tab_logic tbody').on('keyup change',function(){
+		calc();
+	});
+	$('#tax').on('keyup change',function(){
+		calc_total();
+	});
+	
+
+});
+
+function calc()
+{
+	$('#tab_logic tbody tr').each(function(i, element) {
+		var html = $(this).html();
+		if(html!='')
+		{
+			var qty = $(this).find('.qty').val();
+			var price = $(this).find('.price').val();
+			$(this).find('.total').val(qty*price);
+			
+			calc_total();
+		}
+    });
+}
+
+function calc_total()
+{
+	total=0;
+	$('.total').each(function() {
+        total += parseInt($(this).val());
+    });
+	$('#sub_total').val(total.toFixed(2));
+	tax_sum=total/100*$('#tax').val();
+	$('#tax_amount').val(tax_sum.toFixed(2));
+	$('#total_amount').val((tax_sum+total).toFixed(2));
+}
+        </script>
+
+        <!-- Date and time picker -->
+        
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.datepicker');
+        var instances = M.Datepicker.init(elems, options);
+      });
+    
+      // Or with jQuery
+    
+      $(document).ready(function(){
+        $('.datepicker').datepicker();
+      });
+    
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.timepicker');
+        var instances = M.Timepicker.init(elems, options);
+      });
+    
+      // Or with jQuery
+    
+      $(document).ready(function(){
+        $('.timepicker').timepicker();
+      });
+      </script>
+</body>
+
+</html>
